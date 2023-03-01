@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+    <!-- Include Bootstrap CSS file -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Bootstrap Typeahead CSS file -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.css">
+</head>
+<body>
+    <div class="container">
+
+        <h1>Search Results</h1>
+
+        <div class="form-group">
+
+            <div class="form-group">
+                <label for="search-input">Search:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control typeahead" id="search-input" placeholder="Enter your name or index">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="search-button">Search</button>
+                    </div>
+                </div>
+            </div>
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>Full Name</th>
+                        <th>Status</th>
+                        <th>District</th>
+                        <th>Course</th>
+                        <th>University</th>
+                        <th>Unicode</th>
+                        <th>Valid</th>
+                        <th>Record Status</th>
+                        <th>Z-Score</th>
+                    </tr>
+                </thead>
+                <tbody id="search-results">
+                </tbody>
+            </table>
+            
+    <!-- Include jQuery and Bootstrap JS files -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include Bootstrap Typeahead JS file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+    <script>
+        $(document).ready(function(){
+    // Initialize the Typeahead plugin
+    $('.typeahead').typeahead({
+        // AJAX call to PHP backend for suggestions
+        source: function(query, result){
+            $.ajax({
+                url:"search.php",
+                method:"POST",
+                data:{query:query},
+                dataType:"json",
+                success:function(data){
+                    result($.map(data, function(item){
+                        return item;
+                    }));
+                }
+            });
+        },
+        // Auto-select the first suggestion
+        autoSelect: true
+    });
+    
+    // Add click event listener to search button
+    $('#search-button').click(function(){
+        var searchValue = $('#search-input').val();
+        $.ajax({
+            url:"search.php",
+            method:"POST",
+            data:{search:searchValue},
+            dataType:"json",
+            success:function(data){
+                displayResults(data);
+            }
+        });
+    });
+    
+    // Function to display search results
+    function displayResults(data){
+        // Clear the previous results
+        $("#search-results").html("");
+        // Loop through the data and create rows for each result
+        $.each(data, function(i, item){
+            var row = "<tr><td>" + item.indexNo + "</td><td>" + item.fullName + "</td><td>" + item.status + "</td><td>" + item.district + "</td><td>" + item.course + "</td><td>" + item.university + "</td><td>" + item.unicode + "</td><td>" + item.valid + "</td><td>" + item.recordStatus + "</td><td>" + item.zScore + "</td></tr>";
+            $("#search-results").append(row);
+        });
+    }
+});
+
+    </script>
+</body>
+</html>
